@@ -196,6 +196,11 @@
 				TargetAttributes = {
 					B39707711C00F1EF00C5C927 = {
 						CreatedOnToolsVersion = 7.1.1;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 0;
+							};
+						};
 					};
 					B39707881C00F1EF00C5C927 = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -488,6 +493,7 @@
 				B397079F1C00F1EF00C5C927 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B39707A01C00F1EF00C5C927 /* Build configuration list for PBXNativeTarget "DropTests" */ = {
 			isa = XCConfigurationList;
@@ -496,6 +502,7 @@
 				B39707A21C00F1EF00C5C927 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B39707A31C00F1EF00C5C927 /* Build configuration list for PBXNativeTarget "DropUITests" */ = {
 			isa = XCConfigurationList;
@@ -504,6 +511,7 @@
 				B39707A51C00F1EF00C5C927 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 

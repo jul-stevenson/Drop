@@ -13,13 +13,8 @@ import Foundation
 class ViewController: UIViewController {
     
     let manager = CMMotionManager()
-    var fallCount = 0
     var accel = Double()
-    var largestVal = 0.0
-    var hasFallen = false
-    
-    @IBOutlet weak var accelZ: UILabel!
-    
+    var phone = "5743399220"
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,19 +27,30 @@ class ViewController: UIViewController {
             dispatch_async(dispatch_get_main_queue()) {
                 self.accel = sqrt(self.accel*pow(data!.acceleration.x, 2) + self.accel*pow(data!.acceleration.y, 2) + self.accel*pow(data!.acceleration.z, 2))
                 
-                if(self.accel > 9.0 && self.accel < 20.0 && !self.hasFallen){
-                    self.fallCount++
-                    self.hasFallen = true
+                if(self.accel > 9.0 && self.accel < 20.0){
+                    var refreshAlert = UIAlertController(title: "Alert", message: "Are you ok? You seem to have fallen down!", preferredStyle: UIAlertControllerStyle.Alert)
+                    
+                    refreshAlert.addAction(UIAlertAction(title: "Yes", style: .Default, handler: { (action: UIAlertAction!) in
+                    }))
+                    
+                    refreshAlert.addAction(UIAlertAction(title: "No", style: .Default, handler: { (action: UIAlertAction!) in
+                        
+                        if let url = NSURL(string: "tel://\(self.phone)") {
+                            UIApplication.sharedApplication().openURL(url)
+                        }
+                        
+                        
+                    }))
+                    
+                    self.presentViewController(refreshAlert, animated: true, completion: nil)
                 }
-                else{
-                    self.hasFallen = false
-                }
-                
-                self.accelZ.text = String(self.fallCount)
             }
         }
     }
 
+    @IBAction func buttonPressed(sender: AnyObject) {
+        performSegueWithIdentifier("toPage2", sender: nil)
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
