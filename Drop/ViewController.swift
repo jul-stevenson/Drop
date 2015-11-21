@@ -39,18 +39,22 @@ class ViewController: UIViewController {
                             UIApplication.sharedApplication().openURL(url)
                         }
                         
-                        
                     }))
                     
                     self.presentViewController(refreshAlert, animated: true, completion: nil)
+                    
+                    let delay = 15.0 * Double(NSEC_PER_SEC)
+                    var time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+                    dispatch_after(time, dispatch_get_main_queue(), {
+                        if let url = NSURL(string: "tel://\(self.phone)") {
+                            UIApplication.sharedApplication().openURL(url)
+                        }
+                    })
                 }
             }
         }
     }
 
-    @IBAction func buttonPressed(sender: AnyObject) {
-        performSegueWithIdentifier("toPage2", sender: nil)
-    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
