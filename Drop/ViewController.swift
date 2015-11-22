@@ -10,6 +10,7 @@ import UIKit
 import CoreMotion
 import Foundation
 import SwiftAddressBook
+import CoreData
 
 class ViewController: UIViewController {
     
@@ -23,31 +24,25 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        
-
-        
         accel = 1
         
         self.manager.startAccelerometerUpdatesToQueue(NSOperationQueue()) {
             (data, error) in
             dispatch_async(dispatch_get_main_queue()) {
+                
                 self.accel = sqrt(self.accel*pow(data!.acceleration.x, 2) + self.accel*pow(data!.acceleration.y, 2) + self.accel*pow(data!.acceleration.z, 2))
 
                 
-                if(self.accel > 9.0 && self.accel < 20.0){
-                    var noButtonPressed = true
+                if(self.accel > 9.0 && self.accel < 20.0 && self.phone != ""){
                     
                     var refreshAlert = UIAlertController(title: "Alert", message: "Are you ok? You seem to have fallen down!", preferredStyle: UIAlertControllerStyle.Alert)
                     
                     refreshAlert.addAction(UIAlertAction(title: "Yes", style: .Default, handler: { (action: UIAlertAction!) in
-                        noButtonPressed = false
-                        print("Yes " + String(noButtonPressed))
                     }))
                     
                     refreshAlert.addAction(UIAlertAction(title: "No", style: .Default, handler: { (action: UIAlertAction!) in
                         
-                        noButtonPressed = false
-                        print("No " + String(noButtonPressed))
+                        refreshAlert.dismissViewControllerAnimated(true, completion: nil)
                         
                         if let url = NSURL(string: "tel://\(self.phone)") {
                             UIApplication.sharedApplication().openURL(url)
@@ -59,14 +54,16 @@ class ViewController: UIViewController {
 
                     let delay = 15.0 * Double(NSEC_PER_SEC)
                     var time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+                    
                     dispatch_after(time, dispatch_get_main_queue(), {
-                        print("Wait " + String(noButtonPressed))
-                        //if(refreshAlert.){
-                            print("In If Wait " + String(noButtonPressed))
+                        if(self.presentedViewController != nil){
+                            
+                            refreshAlert.dismissViewControllerAnimated(true, completion: nil)
+                            
                             if let url = NSURL(string: "tel://\(self.phone)") {
                                 UIApplication.sharedApplication().openURL(url)
                             }
-                        //}
+                        }
                     })
                 }
             }
@@ -77,7 +74,7 @@ class ViewController: UIViewController {
         
         var nam = ""
         
-        var alert = UIAlertController(title: "Emergency Conact", message: "Please enter your desired contact's name. They must be a member of your address book.", preferredStyle: .Alert)
+        var alert = UIAlertController(title: "Emergency Contact", message: "Please enter your desired contact's name. They must be a member of your address book.", preferredStyle: .Alert)
         
         alert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
             textField.placeholder = "Name"
@@ -89,26 +86,54 @@ class ViewController: UIViewController {
             self.name.text = nam
             
             dispatch_async(dispatch_get_main_queue(), {
-                // code here
                 swiftAddressBook?.requestAccessWithCompletion({ (success, error) -> Void in
                     if success {
                         //do something with swiftAddressBook
                         if let people : [SwiftAddressBookPerson]? = swiftAddressBook?.peopleWithName(nam) {
-                            //access variables on any entry of allPeople array just like always
-                            for person in people! {
-                                //person.phoneNumbers is a "multivalue" entry
-                                //so you get an array of MultivalueEntrys
-                                //see MultivalueEntry in SwiftAddressBook
-                                let numbers = person.phoneNumbers
-                                //the value entry of the multivalue struct contains the data
+                            
+                            if(people! == []){
+                                var secondAlert = UIAlertController(title: "Emergency Contact", message: "I'm sorry, but the name you entered does not exist in your address book. Please enter their phone number and we can add them!", preferredStyle: .Alert)
                                 
-                                var num = (numbers!.first?.value)!
+                                secondAlert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
+                                    textField.placeholder = "Name"
+                                })
                                 
-                                self.phone = num.stringByReplacingOccurrencesOfString("[^0-9 ]", withString: "", options: NSStringCompareOptions.RegularExpressionSearch, range:nil);
-                                self.phone = self.phone.stringByReplacingOccurrencesOfString(" ", withString: "", options: NSStringCompareOptions.RegularExpressionSearch, range:nil);
-                                self.phone.removeAtIndex(self.phone.startIndex)
-                                print(self.phone)
+                                secondAlert.addAction(UIAlertAction(title: "Cancel", style: .Default, handler: { (action: UIAlertAction!) in
+                                    self.name.text = ""
+                                }))
                                 
+                                secondAlert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: { (action: UIAlertAction!) in
+                                    
+                                    var person = SwiftAddressBookPerson.create()
+                                    
+                                    person.firstName = self.name.text
+                                    self.phone = secondAlert.textFields![0].text!
+                                    
+                                    var phoneNumber = MultivalueEntry(value: secondAlert.textFields![0].text!, label: "mobile", id: 0)
+                                    person.phoneNumbers = [phoneNumber]
+                                    
+                                    swiftAddressBook?.addRecord(person)
+                                    swiftAddressBook?.save()
+                                }))
+                                
+                                self.presentViewController(secondAlert, animated: true, completion: nil)
+
+                            }
+                            else{
+                                //access variables on any entry of allPeople array just like always
+                                for person in people! {
+                                    //person.phoneNumbers is a "multivalue" entry
+                                    //so you get an array of MultivalueEntrys
+                                    //see MultivalueEntry in SwiftAddressBook
+                                    let numbers = person.phoneNumbers
+                                    //the value entry of the multivalue struct contains the data
+                                    
+                                    var num = (numbers!.first?.value)!
+                                    
+                                    self.phone = num.stringByReplacingOccurrencesOfString("[^0-9 ]", withString: "", options: NSStringCompareOptions.RegularExpressionSearch, range:nil);
+                                    self.phone = self.phone.stringByReplacingOccurrencesOfString(" ", withString: "", options: NSStringCompareOptions.RegularExpressionSearch, range:nil);
+                                    self.phone.removeAtIndex(self.phone.startIndex)
+                                }
                             }
                         }
                     }
@@ -119,6 +144,11 @@ class ViewController: UIViewController {
         
         self.presentViewController(alert, animated: true, completion: nil)
     }
+    
+    func applicationDidEnterBackground(application: UIApplication) {
+        viewDidLoad()
+    }
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
