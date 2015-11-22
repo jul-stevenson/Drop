@@ -24,14 +24,8 @@
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Th7-Sc-wtc">
-                                <rect key="frame" x="20" y="236.5" width="315" height="123.5"/>
-                                <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="50"/>
-                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DaB-gc-6lr">
-                                <rect key="frame" x="20" y="359" width="244" height="139"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Please edit your emergency contact." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Th7-Sc-wtc">
+                                <rect key="frame" x="-306" y="236.5" width="886" height="123.5"/>
                                 <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="50"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -39,15 +33,22 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="Th7-Sc-wtc" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="SUL-fk-kUl"/>
                             <constraint firstItem="p4X-lh-a5F" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="Sjt-19-3Be"/>
                             <constraint firstItem="p4X-lh-a5F" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="TfT-fH-lge"/>
-                            <constraint firstItem="DaB-gc-6lr" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="XjO-Fo-Yr9"/>
                             <constraint firstItem="Th7-Sc-wtc" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="uDy-Pw-c8x"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Drop" id="KKp-Mx-Iea">
-                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="4qZ-2Z-t96"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="4qZ-2Z-t96">
+                            <connections>
+                                <action selector="editPressed:" destination="BYZ-38-t0r" id="kGw-xl-ZDX"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="name" destination="Th7-Sc-wtc" id="WOm-ND-6OV"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

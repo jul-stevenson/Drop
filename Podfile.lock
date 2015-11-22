@@ -1,0 +1,10 @@
+PODS:
+  - SwiftAddressBook (0.5.0)
+
+DEPENDENCIES:
+  - SwiftAddressBook
+
+SPEC CHECKSUMS:
+  SwiftAddressBook: efdf08a9ba020a8eef927331213ebd13a8e171d1
+
+COCOAPODS: 0.39.0

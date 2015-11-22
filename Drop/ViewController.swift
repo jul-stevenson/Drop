@@ -9,17 +9,22 @@
 import UIKit
 import CoreMotion
 import Foundation
-import AddressBook
+import SwiftAddressBook
 
 class ViewController: UIViewController {
     
     let manager = CMMotionManager()
     var accel = Double()
-    var phone = "5743399220"
+    var phone = ""
 
+    @IBOutlet weak var name: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        
+
         
         accel = 1
         
@@ -68,6 +73,53 @@ class ViewController: UIViewController {
         }
     }
 
+    @IBAction func editPressed(sender: AnyObject) {
+        
+        var nam = ""
+        
+        var alert = UIAlertController(title: "Emergency Conact", message: "Please enter your desired contact's name. They must be a member of your address book.", preferredStyle: .Alert)
+        
+        alert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
+            textField.placeholder = "Name"
+        })
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: { (action) -> Void in
+            let textField = alert.textFields![0] as UITextField
+            nam = textField.text!
+            self.name.text = nam
+            
+            dispatch_async(dispatch_get_main_queue(), {
+                // code here
+                swiftAddressBook?.requestAccessWithCompletion({ (success, error) -> Void in
+                    if success {
+                        //do something with swiftAddressBook
+                        if let people : [SwiftAddressBookPerson]? = swiftAddressBook?.peopleWithName(nam) {
+                            //access variables on any entry of allPeople array just like always
+                            for person in people! {
+                                //person.phoneNumbers is a "multivalue" entry
+                                //so you get an array of MultivalueEntrys
+                                //see MultivalueEntry in SwiftAddressBook
+                                let numbers = person.phoneNumbers
+                                //the value entry of the multivalue struct contains the data
+                                
+                                var num = (numbers!.first?.value)!
+                                
+                                self.phone = num.stringByReplacingOccurrencesOfString("[^0-9 ]", withString: "", options: NSStringCompareOptions.RegularExpressionSearch, range:nil);
+                                self.phone = self.phone.stringByReplacingOccurrencesOfString(" ", withString: "", options: NSStringCompareOptions.RegularExpressionSearch, range:nil);
+                                self.phone.removeAtIndex(self.phone.startIndex)
+                                print(self.phone)
+                                
+                            }
+                        }
+                    }
+                })
+            })
+
+        }))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
