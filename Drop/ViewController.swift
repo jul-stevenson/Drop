@@ -17,12 +17,32 @@ class ViewController: UIViewController {
     let manager = CMMotionManager()
     var accel = Double()
     var phone = ""
-
+    var appDel: AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+    
     @IBOutlet weak var name: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        let context: NSManagedObjectContext = appDel.managedObjectContext
+        
+        let request = NSFetchRequest(entityName: "Contact")
+        request.returnsObjectsAsFaults = false
+        
+        do {
+            let results: NSArray = try context.executeFetchRequest(request)
+            if(results.count > 0){
+                for res in results{
+                    self.phone = res.valueForKey("number") as! String
+                    self.name.text = res.valueForKey("name") as? String
+                    print(self.phone)
+                }
+            }
+        }
+        catch {}
+        
+        
         
         accel = 1
         
@@ -35,7 +55,7 @@ class ViewController: UIViewController {
                 
                 if(self.accel > 9.0 && self.accel < 20.0 && self.phone != ""){
                     
-                    var refreshAlert = UIAlertController(title: "Alert", message: "Are you ok? You seem to have fallen down!", preferredStyle: UIAlertControllerStyle.Alert)
+                    let refreshAlert = UIAlertController(title: "Alert", message: "Are you ok? You seem to have fallen down!", preferredStyle: UIAlertControllerStyle.Alert)
                     
                     refreshAlert.addAction(UIAlertAction(title: "Yes", style: .Default, handler: { (action: UIAlertAction!) in
                     }))
@@ -53,7 +73,7 @@ class ViewController: UIViewController {
                     self.presentViewController(refreshAlert, animated: true, completion: nil)
 
                     let delay = 15.0 * Double(NSEC_PER_SEC)
-                    var time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+                    let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
                     
                     dispatch_after(time, dispatch_get_main_queue(), {
                         if(self.presentedViewController != nil){
@@ -74,7 +94,7 @@ class ViewController: UIViewController {
         
         var nam = ""
         
-        var alert = UIAlertController(title: "Emergency Contact", message: "Please enter your desired contact's name. They must be a member of your address book.", preferredStyle: .Alert)
+        let alert = UIAlertController(title: "Emergency Contact", message: "Please enter your desired contact's name. They must be a member of your address book.", preferredStyle: .Alert)
         
         alert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
             textField.placeholder = "Name"
@@ -88,11 +108,11 @@ class ViewController: UIViewController {
             dispatch_async(dispatch_get_main_queue(), {
                 swiftAddressBook?.requestAccessWithCompletion({ (success, error) -> Void in
                     if success {
-                        //do something with swiftAddressBook
+
                         if let people : [SwiftAddressBookPerson]? = swiftAddressBook?.peopleWithName(nam) {
                             
                             if(people! == []){
-                                var secondAlert = UIAlertController(title: "Emergency Contact", message: "I'm sorry, but the name you entered does not exist in your address book. Please enter their phone number and we can add them!", preferredStyle: .Alert)
+                                let secondAlert = UIAlertController(title: "Emergency Contact", message: "I'm sorry, but the name you entered does not exist in your address book. Please enter their phone number and we can add them!", preferredStyle: .Alert)
                                 
                                 secondAlert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
                                     textField.placeholder = "Name"
@@ -104,16 +124,18 @@ class ViewController: UIViewController {
                                 
                                 secondAlert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: { (action: UIAlertAction!) in
                                     
-                                    var person = SwiftAddressBookPerson.create()
+                                    let person = SwiftAddressBookPerson.create()
                                     
                                     person.firstName = self.name.text
                                     self.phone = secondAlert.textFields![0].text!
                                     
-                                    var phoneNumber = MultivalueEntry(value: secondAlert.textFields![0].text!, label: "mobile", id: 0)
+                                    let phoneNumber = MultivalueEntry(value: secondAlert.textFields![0].text!, label: "mobile", id: 0)
                                     person.phoneNumbers = [phoneNumber]
                                     
                                     swiftAddressBook?.addRecord(person)
                                     swiftAddressBook?.save()
+                                    
+                                    self.saveNewContact()
                                 }))
                                 
                                 self.presentViewController(secondAlert, animated: true, completion: nil)
@@ -128,11 +150,13 @@ class ViewController: UIViewController {
                                     let numbers = person.phoneNumbers
                                     //the value entry of the multivalue struct contains the data
                                     
-                                    var num = (numbers!.first?.value)!
+                                    let num = (numbers!.first?.value)!
                                     
                                     self.phone = num.stringByReplacingOccurrencesOfString("[^0-9 ]", withString: "", options: NSStringCompareOptions.RegularExpressionSearch, range:nil);
                                     self.phone = self.phone.stringByReplacingOccurrencesOfString(" ", withString: "", options: NSStringCompareOptions.RegularExpressionSearch, range:nil);
                                     self.phone.removeAtIndex(self.phone.startIndex)
+                                    
+                                    self.saveNewContact()
                                 }
                             }
                         }
@@ -143,6 +167,20 @@ class ViewController: UIViewController {
         }))
         
         self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    func saveNewContact(){
+        
+        let context: NSManagedObjectContext = appDel.managedObjectContext
+        
+        let newUser = NSEntityDescription.insertNewObjectForEntityForName("Contact", inManagedObjectContext: context) as NSManagedObject
+        newUser.setValue(self.name.text!, forKey: "name")
+        newUser.setValue(self.phone, forKey: "number")
+        
+        do {try context.save()}
+        catch {}
+        
+        print(newUser)
     }
     
     func applicationDidEnterBackground(application: UIApplication) {
